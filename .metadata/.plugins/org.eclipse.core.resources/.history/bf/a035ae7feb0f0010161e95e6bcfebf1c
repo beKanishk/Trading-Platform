@@ -1,0 +1,7 @@
+package com.Project.trading.response;
+
+public class FunctionResponse {
+	private String currentName;
+	private String functionName;
+	private String currencyData;
+}

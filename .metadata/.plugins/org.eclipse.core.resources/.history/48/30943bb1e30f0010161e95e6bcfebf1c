@@ -1,0 +1,189 @@
+package com.Project.trading.service;
+
+
+
+import java.util.Map;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.Project.trading.model.Coin;
+import com.Project.trading.response.ApiResponse;
+import com.Project.trading.response.FunctionResponse;
+import com.Project.trading.serviceInterface.ChatBotServiceInterface;
+
+@Service
+public class ChatBotService implements ChatBotServiceInterface {
+	
+	@Value("${gemini.api.key}")
+	private String geminiAPI;
+	
+	@Value("${coingecko.api.key}")
+	private String coingeckoAPI;
+	
+	private double convertToDouble(Object value) {
+        if (value instanceof Number) {
+            return ((Number) value).doubleValue();
+        }
+        return 0.0;  // Return 0.0 instead of throwing an exception
+    }
+	
+	public Coin makeApiRequest(String currencyName) throws Exception {
+		//String url = "https://api.coingecko.com/api/v3/coins/bitcoin";
+		String url = "https://api.coingecko.com/api/v3/coins/bitcoin?x_cg_demo_api_key=" + coingeckoAPI;
+		
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+		
+		HttpEntity<String> entity = new HttpEntity<>(headers);
+		ResponseEntity<Map> responseEntity = restTemplate.getForEntity(url, Map.class);
+		Map<String, Object> responseBody = responseEntity.getBody();
+		
+		if(responseBody != null) {
+			Map<String, Object> imageMap = (Map<String, Object>)responseBody.get("image");
+			Map<String, Object> marketData = (Map<String, Object>)responseBody.get("market_data");
+			
+			Coin coin = new Coin();
+			coin.setId((String) responseBody.get("id"));
+			coin.setName((String) responseBody.get("name"));
+			coin.setSymbol((String) responseBody.get("symbol"));
+			coin.setImage((String)imageMap.get("large"));
+			
+			coin.setCurrentPrice(convertToDouble(((Map<String, Object>)marketData.get("current_price")).get("usd")));
+			coin.setMarketCap(convertToDouble(((Map<String, Object>)marketData.get("market_cap")).get("usd")));
+			coin.setMarketCapRank((int) convertToDouble((marketData.get("market_cap_rank"))));
+			coin.setTotalVolume(convertToDouble(((Map<String, Object>)marketData.get("total_volume")).get("usd")));
+			coin.setHigh24h(convertToDouble(((Map<String, Object>)marketData.get("high_24h")).get("usd")));
+			coin.setLow24h(convertToDouble(((Map<String, Object>)marketData.get("low_24h")).get("usd")));
+			coin.setPriceChange24h(convertToDouble((marketData.get("price_change_24h"))));
+			coin.setPriceChangePercentage24h(convertToDouble((marketData.get("price_change_percentage_24h"))));
+			coin.setMarketCapChange24h(convertToDouble((marketData.get("market_cap_change_24h"))));
+			coin.setMarketCapChangePercentage24h(convertToDouble((marketData.get("market_cap_change_percentage_24h"))));
+			coin.setCirculatingSupply(convertToDouble((marketData.get("circulating_supply"))));
+			coin.setTotalSupply(convertToDouble((marketData.get("total_supply"))));
+			
+			return coin;
+		}
+		
+		throw new Exception("Coin not found");
+	}
+	
+	@Override
+	public ApiResponse getCoinDetails(String prompt) throws Exception {
+		Coin coin = makeApiRequest(prompt);
+		getFunctionResponse(prompt);
+		System.out.println("Coin -------" + coin);
+		return null;
+	}
+	
+	public FunctionResponse getFunctionResponse(String prompt) {
+	    String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + geminiAPI;
+
+	    JSONObject requestBody = new JSONObject()
+	            .put("contents", new JSONArray()
+	                    .put(new JSONObject()
+	                            .put("parts", new JSONArray()
+	                                    .put(new JSONObject()
+	                                            .put("text", prompt)))))
+	            .put("tools", new JSONArray()
+	                    .put(new JSONObject()
+	                            .put("functionDeclarations", new JSONArray()
+	                                    .put(new JSONObject()
+	                                            .put("name", "getCoinDetails")
+	                                            .put("description", "Get the coin details from given currency object")
+	                                            .put("parameters", new JSONObject()
+	                                                    .put("type", "object")
+	                                                    .put("properties", new JSONObject()
+	                                                            .put("currencyName", new JSONObject()
+	                                                                    .put("type", "string")
+	                                                                    .put("description", "The currency name, id, or symbol."))
+	                                                            .put("currencyData", new JSONObject()
+	                                                                    .put("type", "object")
+	                                                                    .put("description", "Detailed currency data including price, market cap, volume, etc.")
+	                                                                    .put("properties", new JSONObject()
+	                                                                            .put("id", new JSONObject().put("type", "string"))
+	                                                                            .put("symbol", new JSONObject().put("type", "string"))
+	                                                                            .put("image", new JSONObject().put("type", "string"))
+	                                                                            .put("current_price", new JSONObject().put("type", "number"))
+	                                                                            .put("market_cap", new JSONObject().put("type", "number"))
+	                                                                            .put("market_cap_rank", new JSONObject().put("type", "integer"))
+	                                                                            .put("total_volume", new JSONObject().put("type", "number"))
+	                                                                            .put("high_24h", new JSONObject().put("type", "number"))
+	                                                                            .put("low_24h", new JSONObject().put("type", "number"))
+	                                                                            .put("price_change_24h", new JSONObject().put("type", "number"))
+	                                                                            .put("market_cap_change_24h", new JSONObject().put("type", "number"))
+	                                                                            .put("circulating_supply", new JSONObject().put("type", "number"))
+	                                                                            .put("total_supply", new JSONObject().put("type", "number"))
+	                                                                            .put("max_supply", new JSONObject().put("type", "number"))
+	                                                                            .put("ath", new JSONObject().put("type", "number"))
+	                                                                            .put("ath_date", new JSONObject().put("type", "string"))
+	                                                                            .put("atl", new JSONObject().put("type", "number"))
+	                                                                            .put("atl_date", new JSONObject().put("type", "string"))
+	                                                                    )))
+	                                                    .put("required", new JSONArray()
+	                                                            .put("currencyName")
+	                                                            .put("currencyData")))))));
+
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.setContentType(MediaType.APPLICATION_JSON);
+
+	    HttpEntity<String> requestEntity = new HttpEntity<>(requestBody.toString(), headers);
+	    RestTemplate restTemplate = new RestTemplate();
+
+	    try {
+	        ResponseEntity<String> response = restTemplate.postForEntity(GEMINI_API_URL, requestEntity, String.class);
+
+	        if (response.getStatusCode() == HttpStatus.OK) {
+	            String responseBody = response.getBody();
+	            System.out.println("API Response: " + responseBody);
+	            return null;
+	        } else {
+	            System.out.println("Error: " + response.getStatusCode());
+	            return null;
+	        }
+	    } catch (Exception e) {
+	        System.out.println("Exception: " + e.getMessage());
+	        return null;
+	    }
+	}
+
+	
+	
+	//For GEMINI API
+	//this is how data is called in the url
+	/*
+	 * curl
+	 * "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}"
+	 * \ -H 'Content-Type: application/json' \ -X POST \ -d '{ "contents": [{
+	 * "parts":[{"text": "Write a story about a magic backpack."}] }] }'
+	 */	@Override
+	public String simpleChat(String prompt) {
+		String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + geminiAPI;
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		
+		String requestBody = new JSONObject()
+				.put("contents", new JSONArray()
+						.put(new JSONObject()
+								.put("parts", new JSONArray()
+										.put(new JSONObject()
+												.put("text", prompt))))).toString();
+		
+		HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
+		
+		RestTemplate restTemplate = new RestTemplate();
+		ResponseEntity<String> response = restTemplate.postForEntity(GEMINI_API_URL, requestEntity, String.class);
+		
+		return response.getBody();
+	}
+	
+}

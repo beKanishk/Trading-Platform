@@ -1,0 +1,7 @@
+package com.Project.trading.serviceInterface;
+
+import com.Project.trading.response.ApiResponse;
+
+public interface ChatBotServiceInterface {
+	ApiResponse getCoinDetails(String coinName);
+}

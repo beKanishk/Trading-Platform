@@ -1,0 +1,12 @@
+.authContainer{
+    background-image: url("");
+    height: 100vh;
+    width: 100%;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.bgBlur{
+    backdrop-filter: blur(10px);
+}

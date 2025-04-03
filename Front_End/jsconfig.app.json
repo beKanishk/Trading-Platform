@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+      "baseUrl": ".",
+      "paths": {
+        "@/*": ["./src/*"]
+      },
+      "allowJs": true,
+      "checkJs": false,
+      "skipLibCheck": true,
+      "jsx": "react-jsx",
+      "noEmit": true  // ✅ Prevents TypeScript from generating .js files
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist"]
+  }
+  

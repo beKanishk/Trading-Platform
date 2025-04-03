@@ -1,0 +1,5 @@
+package com.Project.trading.model;
+
+public class Prompt {
+
+}

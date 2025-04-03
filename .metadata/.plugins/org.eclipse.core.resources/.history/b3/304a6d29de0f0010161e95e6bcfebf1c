@@ -1,0 +1,15 @@
+spring.application.name=Trading_Platform
+
+#server.port=9696
+spring.datasource.url=jdbc:mysql://localhost:3306/trading
+spring.datasource.username=root
+spring.datasource.password=root
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
+
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+stripe.api.key=csdcwc
+razorpay.api.key=rzp_test_xeH9E8742jaunQ
+razorpay.api.secret=svndteQ4XVLTPHC82gOW7Eoc
+gemini.api.key=AIzaSyBpQMFVAwX08jZ6kuv8Gs5xUoMgkqbZk_w

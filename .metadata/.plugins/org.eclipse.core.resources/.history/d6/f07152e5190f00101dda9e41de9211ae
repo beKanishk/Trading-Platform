@@ -1,0 +1,5 @@
+package com.Project.trading.response;
+
+public class FunctionResponse {
+
+}
