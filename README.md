@@ -1,7 +1,7 @@
 # Trading Application
 
 ## Overview
-This is a Spring Boot-based trading application that integrates with external APIs such as CoinGecko for cryptocurrency data. The application provides functionalities to fetch real-time cryptocurrency details, store them in an SQL database, offer AI-powered chat support using Gemini, and includes user authentication.
+This is a Spring Boot-based trading application that integrates with external APIs such as CoinGecko for cryptocurrency data. The application provides functionalities to fetch real-time cryptocurrency details,  offer AI-powered chat support using Gemini, and includes user authentication.
 
 ## Features
 - Fetch cryptocurrency details using the CoinGecko API.
