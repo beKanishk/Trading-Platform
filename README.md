@@ -21,6 +21,9 @@ This is a Spring Boot-based trading application that integrates with external AP
 - **Maven** (for project management)
 - **Gemini AI** (for chat-based trading support)
 - **React** (for frontend development)
+- **ShadCN UI** (for modern React UI components)
+- **Redux** (for state management)
+
 
 ## Setup Instructions
 
